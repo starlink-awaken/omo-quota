@@ -8,6 +8,9 @@ OpenCode 配额管理 CLI 工具 - 智能管理你的 AI 订阅资源配额。
 
 - 🔄 **策略切换**: 在极致性能、均衡实用、经济节约三种配置策略间快速切换
 - 📊 **配额监控**: 实时追踪各平台 API 调用量和配额重置时间
+- 🔁 **自动同步**: 从 oh-my-opencode 消息历史自动同步使用量
+- 💰 **成本分析**: 生成每日/每月成本报告,识别优化机会
+- 🌐 **Web 仪表盘**: 实时配额监控 Web 界面
 - ✅ **健康检查**: 自动验证配置文件的有效性
 - 🎯 **资源优化**: 根据项目需求动态调整模型分配
 
@@ -23,11 +26,20 @@ bun link
 
 安装后可在任何目录使用 `omo-quota` 命令。
 
+**注意**: 如果系统未安装 Bun,可以使用 Node.js 运行:
+```bash
+cd ~/omo-quota
+npm install
+# 使用 node src/index.ts 代替 omo-quota
+```
+
 ### 方式二: 本地运行
 
 ```bash
 cd ~/omo-quota
 bun run src/index.ts <command>
+# 或使用 Node.js
+node src/index.ts <command>
 ```
 
 ### 方式三: Shell 别名（最快）
@@ -175,6 +187,178 @@ omo-quota doctor
 - ✅ 配额追踪文件是否正常
 - ✅ oh-my-opencode 安装状态
 
+---
+
+## 🆕 新功能
+
+### 7. 自动同步使用量
+
+从 oh-my-opencode 消息历史自动同步 API 使用量:
+
+```bash
+omo-quota sync
+```
+
+**功能特性**:
+- 🔍 自动扫描 `~/.local/share/opencode/storage/message/` 目录
+- 📊 解析所有会话的 token 使用量
+- 💾 自动更新配额追踪文件
+- 🎯 支持所有提供商 (OpenAI, Anthropic, Google, ZhiPuAI, DeepSeek 等)
+
+**输出示例**:
+```
+✅ 成功同步使用量
+
+扫描结果:
+- 会话数: 15
+- 消息数: 342
+- 总 Token 使用: 1,234,567
+
+各提供商使用量:
+- OpenAI: 345,678 tokens ($12.50)
+- Anthropic: 456,789 tokens ($18.30)
+- Google: 234,567 tokens ($3.20)
+- ZhiPuAI: 123,456 tokens (¥45.60)
+
+已更新追踪文件: ~/.omo-quota-tracker.json
+```
+
+**建议使用频率**:
+- 每天工作开始前运行一次
+- 生成成本报告前先同步
+- 发现配额异常时手动同步
+
+详细文档: [docs/SYNC.md](docs/SYNC.md)
+
+---
+
+### 8. 成本分析报告
+
+生成详细的成本分析报告:
+
+```bash
+# 每日成本趋势
+omo-quota report daily
+
+# 每月成本汇总
+omo-quota report monthly
+
+# 导出为 Markdown 文件
+omo-quota report daily --export
+omo-quota report monthly --export
+```
+
+**每日报告示例**:
+```
+📊 每日成本趋势 (最近 7 天)
+
+  $45.00 ┤        ╭─
+  $40.00 ┤      ╭─╯  
+  $35.00 ┤    ╭─╯    
+  $30.00 ┤  ╭─╯      
+  $25.00 ┤╭─╯        
+         └────────────
+         1/24  →  1/30
+
+💰 各提供商成本占比:
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+OpenAI       $156.70 ████████████░░░░░░░░ 45%
+Anthropic    $132.50 ██████████░░░░░░░░░░ 38%
+Google       $34.20  ██░░░░░░░░░░░░░░░░░░ 10%
+ZhiPuAI      ¥89.40  ██░░░░░░░░░░░░░░░░░░  7%
+━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 优化建议:
+1. OpenAI GPT-4 使用频繁 ($22.50/天)
+   建议: 常规任务切换到 Claude Sonnet (更便宜,质量相当)
+
+2. 按当前速度,本月预计总成本 $1,234
+   建议: 考虑后半月切换到 economical 模式
+```
+
+**每月报告示例**:
+```
+📊 2026年1月成本汇总
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+提供商         总成本      调用次数      平均成本
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OpenAI         $456.70     12,345       $0.037
+Anthropic      $387.50     8,234        $0.047
+Google         $123.40     45,678       $0.003
+ZhiPuAI        ¥234.60     23,456       ¥0.010
+DeepSeek       ¥89.30      67,890       ¥0.001
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+总计           $967.60 + ¥323.90
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔝 最贵的 5 个模型:
+1. gpt-4 - $234.50 (24.2%)
+2. claude-opus-4.5 - $198.30 (20.5%)
+3. claude-sonnet-4.5 - $189.20 (19.6%)
+4. gpt-4o - $178.40 (18.4%)
+5. glm-4.7 - ¥145.60 (中国市场)
+```
+
+**使用场景**:
+- 📈 追踪每日成本变化趋势
+- 💡 识别高成本操作和优化机会
+- 📋 生成月度预算报告
+- 🎯 对比不同策略的成本效益
+
+详细文档: [docs/COST_ANALYSIS.md](docs/COST_ANALYSIS.md)
+
+---
+
+### 9. Web 实时仪表盘
+
+启动实时配额监控 Web 界面:
+
+```bash
+omo-quota dashboard
+
+# 自定义端口
+omo-quota dashboard -p 8080
+```
+
+**功能特性**:
+- 🌐 实时配额监控 (每 5 秒刷新)
+- 📊 各提供商使用进度条
+- 🎨 彩色可视化界面
+- 📱 响应式设计 (支持移动设备)
+- ⚡ 轻量级 (无需额外依赖)
+
+**界面预览**:
+```
+┌────────────────────────────────────────┐
+│      OMO Quota Dashboard               │
+│                                        │
+│  当前策略: balanced                     │
+│  最后更新: 2026-01-30 10:09:11         │
+│                                        │
+│  OpenAI                                │
+│  ████████████░░░░░░░░ 45/200 (22.5%)  │
+│                                        │
+│  Anthropic                             │
+│  ██████████████████░░ 180/200 (90%)   │
+│  ⚠️ 配额即将耗尽!                       │
+│                                        │
+│  [刷新] [切换策略]                      │
+└────────────────────────────────────────┘
+```
+
+**使用场景**:
+- 💻 一边开发一边监控配额变化
+- 👀 实时观察 AI 使用趋势
+- 📺 在第二屏幕显示配额状态
+- 🎯 远程查看配额 (局域网访问)
+
+**访问**: 启动后打开浏览器访问 `http://localhost:3737`
+
+**停止**: 按 `Ctrl+C` 停止服务器
+
+详细文档: [docs/DASHBOARD.md](docs/DASHBOARD.md)
+
 ## 策略对比
 
 ### Strategy 1: Performance (极致性能)
@@ -296,7 +480,8 @@ omo-quota switch balanced
 **建议频率**:
 
 ```bash
-# 每天开始工作前
+# 每天开始工作前 (自动同步 + 查看状态)
+omo-quota sync
 omo-quota status
 
 # 发现某资源即将耗尽时
@@ -307,13 +492,18 @@ omo-quota reset claude-pro
 omo-quota reset zhipuai-max
 ```
 
-### 3. 手动更新使用量
+### 3. 自动同步使用量
 
-虽然 oh-my-opencode 会自动追踪,但关键资源建议手动确认:
+使用自动同步功能保持数据最新:
 
 ```bash
-# 检查 Claude Pro 实际使用量（通过官网）
-# 如发现差异,手动同步
+# 从 oh-my-opencode 消息历史自动同步
+omo-quota sync
+
+# 生成成本报告前先同步
+omo-quota sync && omo-quota report daily
+
+# 如发现差异,可以手动调整
 omo-quota update claude-pro 85
 ```
 
@@ -342,6 +532,21 @@ omo-quota switch balanced && omo-quota doctor
 omo-quota doctor
 ```
 
+### 6. 成本控制和优化
+
+```bash
+# 每周查看成本趋势
+omo-quota sync
+omo-quota report daily
+
+# 每月生成成本汇总
+omo-quota report monthly --export  # 导出为 Markdown 保存
+
+# 根据报告调整策略
+# 如成本过高 → 切换到 economical
+# 如配额充足 → 升级到 performance
+```
+
 ## 配置文件路径
 
 | 文件 | 路径 | 说明 |
@@ -352,6 +557,19 @@ omo-quota doctor
 | 经济策略 | `~/.config/opencode/strategies/strategy-3-economical.jsonc` | 经济节约配置 |
 | 配额追踪 | `~/.omo-quota-tracker.json` | 使用量追踪数据 |
 | 配置备份 | `~/.config/opencode/oh-my-opencode.backup.jsonc` | 切换前的备份 |
+| 消息历史 | `~/.local/share/opencode/storage/message/` | oh-my-opencode 消息存储 (sync 数据源) |
+
+## 环境变量
+
+| 变量 | 默认值 | 说明 |
+|------|--------|------|
+| `OMO_QUOTA_HOME` | `~/.config/opencode` | oh-my-opencode 配置目录路径 |
+
+**自定义安装路径示例**:
+```bash
+export OMO_QUOTA_HOME="/custom/path/to/opencode"
+omo-quota status
+```
 
 ## 故障排查
 
@@ -459,15 +677,32 @@ cat strategy-2-balanced.jsonc | bunx jsonc-parser
 ├── src/
 │   ├── index.ts              # CLI 入口
 │   ├── types.ts              # 类型定义
+│   ├── pricing.ts            # AI 模型定价表
 │   ├── utils/
-│   │   └── tracker.ts        # 追踪文件操作
+│   │   ├── tracker.ts        # 追踪文件操作
+│   │   ├── message-parser.ts # 消息历史解析器
+│   │   └── cost-calculator.ts # 成本计算引擎
 │   └── commands/             # 命令实现
-│       ├── status.ts
-│       ├── switch.ts
-│       ├── reset.ts
-│       ├── update.ts
-│       ├── init.ts
-│       └── doctor.ts
+│       ├── status.ts         # 查看配额状态
+│       ├── list.ts           # 列出策略
+│       ├── switch.ts         # 切换策略
+│       ├── reset.ts          # 标记重置
+│       ├── update.ts         # 更新使用量
+│       ├── init.ts           # 初始化追踪
+│       ├── doctor.ts         # 健康检查
+│       ├── sync.ts           # 🆕 自动同步
+│       ├── report.ts         # 🆕 成本报告
+│       └── dashboard.ts      # 🆕 Web 仪表盘
+├── dashboard/
+│   └── index.html            # 🆕 仪表盘 UI
+├── docs/
+│   ├── STATUS_TRACKING.md    # 配额追踪文档
+│   ├── SYNC.md               # 🆕 自动同步指南
+│   ├── COST_ANALYSIS.md      # 🆕 成本分析指南
+│   └── DASHBOARD.md          # 🆕 仪表盘使用指南
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # 🆕 CI/CD 工作流
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -528,11 +763,13 @@ bun build src/index.ts --outdir dist --target bun
 
 ## 技术栈
 
-- **运行时**: Bun
+- **运行时**: Bun (或 Node.js)
 - **语言**: TypeScript
 - **CLI 框架**: Commander.js
 - **UI 库**: chalk, boxen
+- **图表库**: asciichart, chartscii
 - **JSON 解析**: jsonc-parser
+- **Web 服务器**: Bun.serve() (内置)
 
 ## 许可证
 
@@ -550,13 +787,25 @@ MIT License - 自由使用和修改
 # 1. 初始化
 omo-quota init
 
-# 2. 切换到推荐策略
+# 2. 自动同步使用量
+omo-quota sync
+
+# 3. 切换到推荐策略
 omo-quota switch balanced
 
-# 3. 查看状态
+# 4. 查看状态
 omo-quota status
 
-# 4. 开始使用 OpenCode!
+# 5. (可选) 启动 Web 仪表盘
+omo-quota dashboard
+
+# 6. 开始使用 OpenCode!
 ```
 
 **问题反馈**: 如遇到问题,请运行 `omo-quota doctor` 并附上输出结果。
+
+**更多文档**:
+- [自动同步指南](docs/SYNC.md)
+- [成本分析指南](docs/COST_ANALYSIS.md)
+- [仪表盘使用指南](docs/DASHBOARD.md)
+- [配额追踪说明](docs/STATUS_TRACKING.md)
