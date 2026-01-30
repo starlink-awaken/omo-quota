@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import boxen from 'boxen';
 import { existsSync, readFileSync } from 'fs';
 import { parse as parseJSONC } from 'jsonc-parser';
-import { STRATEGIES, STRATEGIES_DIR, CONFIG_PATH } from '../types';
+import { STRATEGIES, STRATEGIES_DIR, CONFIG_PATH, StrategyProviders } from '../types';
 
 interface StrategyMetadata {
   name: string;
@@ -90,11 +90,16 @@ export function list() {
       continue;
     }
     
+    // 🆕 解析 providers 回退链
+    const config = parseJSONC(readFileSync(filePath, 'utf-8'));
+    const hasProviders = !!config.providers;
+    
     const title = isCurrent 
       ? `${metadata.name} (当前使用) ⭐`
       : metadata.name;
     
-    const content = [
+    // 🆕 构建内容数组
+    const contentLines: string[] = [
       `${chalk.bold('ID:')} ${chalk.cyan(key)}`,
       `${chalk.bold('描述:')} ${metadata.description || metadata.useCase}`,
       `${chalk.bold('成本:')} ${metadata.cost}`,
@@ -103,7 +108,22 @@ export function list() {
       `${chalk.bold('适用场景:')} ${metadata.useCase}`,
       '',
       chalk.gray(`切换命令: omo-quota switch ${key}`),
-    ].join('\n');
+    ];
+    
+    // 如果有 providers 配置，显示回退链
+    if (hasProviders) {
+      contentLines.push('');
+      contentLines.push(chalk.yellow('📋 Providers 回退链:'));
+      
+      for (const [provider, providerModels] of Object.entries(config.providers || {})) {
+        contentLines.push(`  ${chalk.cyan(provider)}: ${chalk.gray(providerModels.join(', '))}`);
+      }
+      
+      contentLines.push('');
+      contentLines.push(chalk.gray('  说明：oh-my-opencode 会按顺序尝试提供商，直到找到可用的模型'));
+    }
+    
+    const content = contentLines.join('\n');
     
     const boxColor = isCurrent ? 'green' : key === 'balanced' ? 'cyan' : 'gray';
     const borderStyle = isCurrent ? 'double' : 'single';

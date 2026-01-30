@@ -11,16 +11,6 @@ import { syncQuota } from './commands/sync';
 import { reportDaily, reportMonthly } from './commands/report';
 import { startDashboard } from './commands/dashboard';
 import { watch } from './commands/watch';
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-// 读取 package.json 获取版本号
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const packageJson = JSON.parse(
-  readFileSync(join(__dirname, '../package.json'), 'utf-8')
-);
 
 const program = new Command();
 
@@ -132,17 +122,11 @@ program
   });
 
 program
-  .command('watch')
-  .description('监控配额状态并自动预警')
-  .option('-i, --interval <seconds>', '检查间隔(秒)', '300')
-  .option('-t, --threshold <percentage>', '预警阈值(%)', '20')
-  .option('--auto-switch', '自动切换到economical模式')
-  .action((options: any) => {
-    watch({
-      interval: parseInt(options.interval) * 1000,
-      threshold: parseInt(options.threshold),
-      autoSwitch: options.autoSwitch
-    });
-  });
+import { validateModels } from './commands/validate-models';
+
+program
+  .command('validate-models [command]', '验证模型配置')
+  .option('-s, --strategy <name>', '指定要验证的策略名称', 'balanced')
+  .parse();
 
 program.parse();

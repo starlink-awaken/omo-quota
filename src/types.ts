@@ -22,6 +22,25 @@ export const STRATEGIES_DIR = `${process.env.HOME}/.config/opencode/strategies`;
 export const BACKUP_PATH = `${process.env.HOME}/.config/opencode/oh-my-opencode.backup.jsonc`;
 export const BASE_PATH = getBasePath();
 
+// 提供商配置 - 支持回退链
+export interface ProviderConfig {
+  models: string[]; // 该提供商支持的模型列表
+}
+
+// 策略级别的提供商回退链配置
+export interface StrategyProviders {
+  [provider: string]: string[]; // 提供商名称到模型列表的映射
+}
+
+// 策略配置接口（如果策略文件包含 providers 字段）
+export interface StrategyWithProviders {
+  $schema?: string;
+  description: string;
+  providers?: StrategyProviders; // 可选：提供商回退链配置
+  agents?: Record<string, { model: string; primary_provider?: string; fallback_providers?: string[] }>;
+  categories?: Record<string, { model: string }>;
+}
+
 export const STRATEGIES = {
   performance: 'strategy-1-performance.jsonc',
   balanced: 'strategy-2-balanced.jsonc',
