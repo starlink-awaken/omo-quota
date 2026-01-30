@@ -184,13 +184,13 @@ omo-quota update zhipuai-max 2500
 ```bash
 # 添加到 crontab
 # 每天上午9点提醒检查配额
-0 9 * * * cd ~/omo-quota && bun run src/index.ts status
+0 9 * * * cd ~/Workspace/Tools/omo-quota && bun run src/index.ts status
 
 # Fish shell: 每次打开终端时自动显示
 # ~/.config/fish/conf.d/quota-reminder.fish
 function check_quota --on-event fish_prompt
     if test (date +%H) -eq 9  # 只在早上9点提醒
-        cd ~/omo-quota && bun run src/index.ts status
+        cd ~/Workspace/Tools/omo-quota && bun run src/index.ts status
     end
 end
 ```

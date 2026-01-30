@@ -15,7 +15,7 @@
 显示最近 7 天的成本变化:
 
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts report daily
 ```
 
@@ -67,7 +67,7 @@ ZhiPuAI      ¥89.40  ██░░░░░░░░░░░░░░░░░�
 显示当月详细成本分解:
 
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts report monthly
 ```
 
@@ -180,7 +180,7 @@ node src/index.ts report monthly --export
 
 ```bash
 # 早上同步数据
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts sync
 
 # 查看每日趋势
@@ -196,7 +196,7 @@ node src/index.ts report daily
 
 ```bash
 # 周一早上生成报告
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts sync
 node src/index.ts report daily --export
 
@@ -215,7 +215,7 @@ cat omo-quota-daily-report-*.md
 # 假设: $1,200/月
 
 # 每周检查
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts sync
 node src/index.ts report monthly
 
@@ -351,7 +351,7 @@ oh-my-opencode 消息历史
 
 **解决方案**:
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts init      # 初始化
 node src/index.ts sync      # 同步数据
 node src/index.ts report daily
@@ -386,7 +386,7 @@ node src/index.ts report daily
 ls ~/.local/share/opencode/storage/message/
 
 # 运行同步
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts sync
 
 # 重新生成报告

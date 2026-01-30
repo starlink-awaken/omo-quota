@@ -19,7 +19,7 @@ OpenCode 配额管理 CLI 工具 - 智能管理你的 AI 订阅资源配额。
 ### 方式一: 全局安装（推荐）
 
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 bun install
 bun link
 ```
@@ -28,7 +28,7 @@ bun link
 
 **注意**: 如果系统未安装 Bun,可以使用 Node.js 运行:
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 npm install
 # 使用 node src/index.ts 代替 omo-quota
 ```
@@ -36,7 +36,7 @@ npm install
 ### 方式二: 本地运行
 
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 bun run src/index.ts <command>
 # 或使用 Node.js
 node src/index.ts <command>
@@ -49,13 +49,13 @@ node src/index.ts <command>
 ```fish
 # Fish shell (~/.config/fish/config.fish)
 function oq
-    cd ~/omo-quota && bun run src/index.ts $argv
+    cd ~/Workspace/Tools/omo-quota && bun run src/index.ts $argv
 end
 ```
 
 ```bash
 # Bash/Zsh (~/.bashrc 或 ~/.zshrc)
-alias oq='cd ~/omo-quota && bun run src/index.ts'
+alias oq='cd ~/Workspace/Tools/omo-quota && bun run src/index.ts'
 ```
 
 ## 核心命令
@@ -578,11 +578,11 @@ omo-quota status
 **解决方案**:
 
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 bun link
 
 # 或使用完整路径
-cd ~/omo-quota && bun run src/index.ts status
+cd ~/Workspace/Tools/omo-quota && bun run src/index.ts status
 ```
 
 ### 问题: 策略切换后配置未生效
@@ -673,7 +673,7 @@ cat strategy-2-balanced.jsonc | bunx jsonc-parser
 ## 文件结构
 
 ```
-~/omo-quota/
+~/Workspace/Tools/omo-quota/
 ├── src/
 │   ├── index.ts              # CLI 入口
 │   ├── types.ts              # 类型定义

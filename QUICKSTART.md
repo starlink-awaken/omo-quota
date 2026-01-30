@@ -4,54 +4,54 @@
 
 ```bash
 # 1. 初始化追踪文件
-bun run ~/omo-quota/src/index.ts init
+bun run ~/Workspace/Tools/omo-quota/src/index.ts init
 
 # 2. 查看资源状态
-bun run ~/omo-quota/src/index.ts status
+bun run ~/Workspace/Tools/omo-quota/src/index.ts status
 
 # 3. 切换策略（可选）
-bun run ~/omo-quota/src/index.ts switch balanced
+bun run ~/Workspace/Tools/omo-quota/src/index.ts switch balanced
 ```
 
 ## 常用命令速查
 
 ### 查看帮助
 ```bash
-bun run ~/omo-quota/src/index.ts --help
-bun run ~/omo-quota/src/index.ts status --help
+bun run ~/Workspace/Tools/omo-quota/src/index.ts --help
+bun run ~/Workspace/Tools/omo-quota/src/index.ts status --help
 ```
 
 ### 管理配额重置
 ```bash
 # 标记单个资源已重置
-bun run ~/omo-quota/src/index.ts reset anthropic
+bun run ~/Workspace/Tools/omo-quota/src/index.ts reset anthropic
 
 # 标记所有 5 小时资源已重置
-bun run ~/omo-quota/src/index.ts reset all
+bun run ~/Workspace/Tools/omo-quota/src/index.ts reset all
 ```
 
 ### 更新月度用量
 ```bash
 # 更新 Github Copilot Premium 用量
-bun run ~/omo-quota/src/index.ts update github-copilot-premium 150
+bun run ~/Workspace/Tools/omo-quota/src/index.ts update github-copilot-premium 150
 ```
 
 ### 切换策略
 ```bash
 # 性能优先（成本较高）
-bun run ~/omo-quota/src/index.ts switch performance
+bun run ~/Workspace/Tools/omo-quota/src/index.ts switch performance
 
 # 均衡模式（推荐）
-bun run ~/omo-quota/src/index.ts switch balanced
+bun run ~/Workspace/Tools/omo-quota/src/index.ts switch balanced
 
 # 省钱模式（性能一般）
-bun run ~/omo-quota/src/index.ts switch economical
+bun run ~/Workspace/Tools/omo-quota/src/index.ts switch economical
 ```
 
 ### 验证配置
 ```bash
 # 检查所有配置文件
-bun run ~/omo-quota/src/index.ts doctor
+bun run ~/Workspace/Tools/omo-quota/src/index.ts doctor
 ```
 
 ## 创建别名（可选）
@@ -59,7 +59,7 @@ bun run ~/omo-quota/src/index.ts doctor
 为了简化命令，可以在 `~/.bashrc` 或 `~/.zshrc` 中添加：
 
 ```bash
-alias oq='bun run ~/omo-quota/src/index.ts'
+alias oq='bun run ~/Workspace/Tools/omo-quota/src/index.ts'
 ```
 
 然后就可以这样使用：
@@ -78,7 +78,7 @@ oq reset all
 
 ```bash
 #!/bin/bash
-bun run ~/omo-quota/src/index.ts status
+bun run ~/Workspace/Tools/omo-quota/src/index.ts status
 ```
 
 添加到 cron 或 launchd 定时执行。
@@ -87,10 +87,10 @@ bun run ~/omo-quota/src/index.ts status
 
 ```bash
 # 在启动开发环境前检查配额
-bun run ~/omo-quota/src/index.ts status && code .
+bun run ~/Workspace/Tools/omo-quota/src/index.ts status && code .
 
 # 切换到省钱模式后再长时间任务
-bun run ~/omo-quota/src/index.ts switch economical && npm run build
+bun run ~/Workspace/Tools/omo-quota/src/index.ts switch economical && npm run build
 ```
 
 ## 故障排查
@@ -99,14 +99,14 @@ bun run ~/omo-quota/src/index.ts switch economical && npm run build
 
 ```bash
 # 解决：重新初始化
-bun run ~/omo-quota/src/index.ts init
+bun run ~/Workspace/Tools/omo-quota/src/index.ts init
 ```
 
 ### 问题：策略文件找不到
 
 ```bash
 # 解决：运行 doctor 检查
-bun run ~/omo-quota/src/index.ts doctor
+bun run ~/Workspace/Tools/omo-quota/src/index.ts doctor
 ```
 
 ### 问题：时间显示不准确
@@ -114,7 +114,7 @@ bun run ~/omo-quota/src/index.ts doctor
 追踪文件中的时间是手动管理的，需要在资源重置后运行：
 
 ```bash
-bun run ~/omo-quota/src/index.ts reset <provider>
+bun run ~/Workspace/Tools/omo-quota/src/index.ts reset <provider>
 ```
 
 ## 进阶使用

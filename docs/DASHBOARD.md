@@ -14,7 +14,7 @@
 ### 启动仪表盘
 
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts dashboard
 ```
 
@@ -126,7 +126,7 @@ node src/index.ts dashboard --port 8080
 
 ```bash
 # 终端 1: 启动仪表盘
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts dashboard
 
 # 浏览器: 访问 http://localhost:3737
@@ -147,7 +147,7 @@ node src/index.ts dashboard
 
 ```bash
 # 服务器上启动
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts dashboard
 
 # 输出显示网络地址
@@ -163,7 +163,7 @@ node src/index.ts dashboard
 
 ```bash
 # 团队服务器上启动
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts dashboard -p 8080
 
 # 团队成员访问
@@ -286,7 +286,7 @@ curl -s http://localhost:3737/api/status | jq -r '.providers | to_entries[] | [.
 
 ```bash
 # macOS: 允许特定端口
-sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add ~/omo-quota
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add ~/Workspace/Tools/omo-quota
 
 # Linux: iptables 规则
 sudo iptables -A INPUT -p tcp --dport 3737 -s 192.168.1.0/24 -j ACCEPT
@@ -360,7 +360,7 @@ sudo iptables -L
 
 # 3. 重启仪表盘
 # Ctrl+C 停止
-cd ~/omo-quota && node src/index.ts dashboard
+cd ~/Workspace/Tools/omo-quota && node src/index.ts dashboard
 ```
 
 ### 问题 4: "移动设备无法访问"

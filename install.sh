@@ -4,7 +4,7 @@ set -e
 
 echo "🚀 安装 omo-quota..."
 
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 
 echo "📦 安装依赖..."
 bun install
@@ -24,4 +24,4 @@ echo "  omo-quota status    # 查看资源状态"
 echo "  omo-quota --help    # 查看所有命令"
 echo ""
 echo "或者直接使用 bun:"
-echo "  bun run ~/omo-quota/src/index.ts status"
+echo "  bun run ~/Workspace/Tools/omo-quota/src/index.ts status"

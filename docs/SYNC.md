@@ -69,7 +69,7 @@ oh-my-opencode 将所有 AI 对话保存在:
 ### 基本用法
 
 ```bash
-cd ~/omo-quota
+cd ~/Workspace/Tools/omo-quota
 node src/index.ts sync
 ```
 
@@ -136,7 +136,7 @@ node src/index.ts sync && node src/index.ts status && node src/index.ts report d
 crontab -e
 
 # 添加每天早上 9 点自动同步
-0 9 * * * cd ~/omo-quota && node src/index.ts sync >> /tmp/omo-quota-sync.log 2>&1
+0 9 * * * cd ~/Workspace/Tools/omo-quota && node src/index.ts sync >> /tmp/omo-quota-sync.log 2>&1
 ```
 
 **方式二: Shell 启动时同步**
@@ -144,7 +144,7 @@ crontab -e
 ```fish
 # Fish shell (~/.config/fish/config.fish)
 function omo-morning
-    cd ~/omo-quota
+    cd ~/Workspace/Tools/omo-quota
     node src/index.ts sync
     node src/index.ts status
 end
@@ -154,7 +154,7 @@ end
 
 ```bash
 # Bash/Zsh (~/.bashrc 或 ~/.zshrc)
-alias omo-morning='cd ~/omo-quota && node src/index.ts sync && node src/index.ts status'
+alias omo-morning='cd ~/Workspace/Tools/omo-quota && node src/index.ts sync && node src/index.ts status'
 ```
 
 **方式三: Git Hook (适合团队)**
@@ -162,7 +162,7 @@ alias omo-morning='cd ~/omo-quota && node src/index.ts sync && node src/index.ts
 ```bash
 # .git/hooks/post-merge (每次 git pull 后同步)
 #!/bin/bash
-cd ~/omo-quota && node src/index.ts sync > /dev/null 2>&1
+cd ~/Workspace/Tools/omo-quota && node src/index.ts sync > /dev/null 2>&1
 ```
 
 ## 数据准确性
