@@ -10,13 +10,62 @@ import { list } from './commands/list';
 import { syncQuota } from './commands/sync';
 import { reportDaily, reportMonthly } from './commands/report';
 import { startDashboard } from './commands/dashboard';
+import { watch } from './commands/watch';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// 读取 package.json 获取版本号
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJson = JSON.parse(
+  readFileSync(join(__dirname, '../package.json'), 'utf-8')
+);
 
 const program = new Command();
+
+// 全局选项
+let verboseMode = false;
+let logLevel: 'debug' | 'info' | 'warn' | 'error' = 'info';
+
+// 日志工具
+export const logger = {
+  debug: (...args: any[]) => {
+    if (logLevel === 'debug' || verboseMode) {
+      console.log('[DEBUG]', ...args);
+    }
+  },
+  info: (...args: any[]) => {
+    if (['debug', 'info'].includes(logLevel) || verboseMode) {
+      console.log('[INFO]', ...args);
+    }
+  },
+  warn: (...args: any[]) => {
+    if (['debug', 'info', 'warn'].includes(logLevel)) {
+      console.warn('[WARN]', ...args);
+    }
+  },
+  error: (...args: any[]) => {
+    console.error('[ERROR]', ...args);
+  },
+};
 
 program
   .name('omo-quota')
   .description('Oh-My-OpenCode 配额管理和策略切换工具')
-  .version('1.0.0');
+  .version(packageJson.version)
+  .option('-v, --verbose', '详细输出模式')
+  .option('--log <level>', '日志级别 (debug|info|warn|error)', 'info')
+  .option('--silent', '静默模式 (仅输出错误)')
+  .hook('preAction', (thisCommand) => {
+    const opts = thisCommand.opts();
+    verboseMode = opts.verbose;
+    if (opts.silent) {
+      logLevel = 'error';
+    } else if (opts.log) {
+      logLevel = opts.log as any;
+    }
+  });
 
 program
   .command('list')
@@ -80,6 +129,20 @@ program
   .action((options: any) => {
     const port = parseInt(options.port);
     startDashboard(port);
+  });
+
+program
+  .command('watch')
+  .description('监控配额状态并自动预警')
+  .option('-i, --interval <seconds>', '检查间隔(秒)', '300')
+  .option('-t, --threshold <percentage>', '预警阈值(%)', '20')
+  .option('--auto-switch', '自动切换到economical模式')
+  .action((options: any) => {
+    watch({
+      interval: parseInt(options.interval) * 1000,
+      threshold: parseInt(options.threshold),
+      autoSwitch: options.autoSwitch
+    });
   });
 
 program.parse();
