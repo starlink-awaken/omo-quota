@@ -1,0 +1,562 @@
+# omo-quota
+
+OpenCode 配额管理 CLI 工具 - 智能管理你的 AI 订阅资源配额。
+
+## 功能概述
+
+`omo-quota` 是一个专为 oh-my-opencode 用户设计的配额管理工具,帮助你:
+
+- 🔄 **策略切换**: 在极致性能、均衡实用、经济节约三种配置策略间快速切换
+- 📊 **配额监控**: 实时追踪各平台 API 调用量和配额重置时间
+- ✅ **健康检查**: 自动验证配置文件的有效性
+- 🎯 **资源优化**: 根据项目需求动态调整模型分配
+
+## 安装
+
+### 方式一: 全局安装（推荐）
+
+```bash
+cd ~/omo-quota
+bun install
+bun link
+```
+
+安装后可在任何目录使用 `omo-quota` 命令。
+
+### 方式二: 本地运行
+
+```bash
+cd ~/omo-quota
+bun run src/index.ts <command>
+```
+
+### 方式三: Shell 别名（最快）
+
+添加到你的 shell 配置文件:
+
+```fish
+# Fish shell (~/.config/fish/config.fish)
+function oq
+    cd ~/omo-quota && bun run src/index.ts $argv
+end
+```
+
+```bash
+# Bash/Zsh (~/.bashrc 或 ~/.zshrc)
+alias oq='cd ~/omo-quota && bun run src/index.ts'
+```
+
+## 核心命令
+
+### 1. 查看配额状态
+
+```bash
+omo-quota status
+```
+
+**输出示例**:
+```
+┌─ T0 Premium 资源 (Claude Pro 等) ─────────┐
+│ Claude Pro          50/100 (5h 后重置)    │
+│ ChatGPT Plus        30/100 (5h 后重置)    │
+│ Gemini Pro ×2       120/200 (5h 后重置)   │
+└────────────────────────────────────────────┘
+
+┌─ T1 High-Value 资源 (ZhiPuAI 等) ────────┐
+│ ZhiPuAI Max         1200/6000 (5h 后重置) │
+│ 方舟 Pro            300/6000 (5h 后重置)   │
+└────────────────────────────────────────────┘
+
+┌─ T2 Free 资源 (Github Copilot Pro) ──────┐
+│ Premium 模型        150/300 (月度)        │
+│ Free 模型           无限制                │
+└────────────────────────────────────────────┘
+
+┌─ T3 Balance 资源 (DeepSeek 等) ──────────┐
+│ DeepSeek            ¥180/¥300             │
+│ 硅基流动            ¥120/¥200             │
+│ Openrouter          $45/$100              │
+└────────────────────────────────────────────┘
+```
+
+### 2. 切换配置策略
+
+```bash
+omo-quota switch <strategy>
+```
+
+**可用策略**:
+
+| 策略 | 适用场景 | 成本 | 性能 |
+|------|---------|------|------|
+| `performance` | 关键项目、紧急任务、需要最佳输出质量 | 高 | 最高 |
+| `balanced` | 日常开发、通用任务（**推荐**） | 中 | 优秀 |
+| `economical` | 实验项目、学习使用、预算受限 | 低 | 良好 |
+
+**示例**:
+
+```bash
+# 切换到均衡策略（推荐）
+omo-quota switch balanced
+
+# 重要项目时切换到性能模式
+omo-quota switch performance
+
+# 月底配额紧张时切换到经济模式
+omo-quota switch economical
+```
+
+**注意**: 切换后需要重启 OpenCode 或重新加载配置。
+
+### 3. 标记配额重置
+
+```bash
+omo-quota reset <provider>
+```
+
+**适用平台**（5小时重置型）:
+- `claude-pro`
+- `chatgpt-plus`
+- `gemini-pro`
+- `zhipuai-max`
+- `ark-pro`
+
+**示例**:
+
+```bash
+# Claude Pro 配额已重置
+omo-quota reset claude-pro
+
+# ZhiPuAI 配额已重置
+omo-quota reset zhipuai-max
+```
+
+### 4. 更新配额使用量
+
+```bash
+omo-quota update <provider> <usage>
+```
+
+**支持的平台**: 所有 T0/T1/T2/T3 资源
+
+**示例**:
+
+```bash
+# 记录 Claude Pro 使用了 50 次调用
+omo-quota update claude-pro 50
+
+# 记录 DeepSeek 花费 ¥50
+omo-quota update deepseek 50
+
+# 记录 Github Copilot 使用 20 次 premium 调用
+omo-quota update github-copilot-premium 20
+```
+
+### 5. 初始化配额追踪
+
+```bash
+omo-quota init
+```
+
+**功能**:
+- 创建 `~/.omo-quota-tracker.json` 文件
+- 初始化所有资源配额为 0
+- 自动检测并修复损坏的追踪文件
+
+### 6. 健康检查
+
+```bash
+omo-quota doctor
+```
+
+**检查项**:
+- ✅ 所有策略配置文件是否存在
+- ✅ 当前活动配置是否有效
+- ✅ 配额追踪文件是否正常
+- ✅ oh-my-opencode 安装状态
+
+## 策略对比
+
+### Strategy 1: Performance (极致性能)
+
+**核心理念**: 不计成本,追求最佳输出质量
+
+**模型分配**:
+- **Sisyphus** (主协调器): Claude Opus 4.5 (antigravity 思考模式)
+- **Oracle** (调试专家): GPT-4.1
+- **Prometheus** (规划器): Claude Opus 4.5 (antigravity)
+- **Librarian** (文档): Claude Sonnet 4.5
+- **Explore** (代码搜索): Claude Sonnet 4.5
+
+**并发限制**:
+- Claude: 10 并发
+- OpenAI: 15 并发
+- 总计: 50 并发
+
+**适用场景**:
+- 生产环境紧急修复
+- 关键功能开发
+- 复杂架构设计
+- 客户演示准备
+
+**预估成本**: ¥500-1000/天（高强度使用）
+
+---
+
+### Strategy 2: Balanced (均衡实用) ⭐ 推荐
+
+**核心理念**: 高效利用所有资源,性价比最优
+
+**模型分配**:
+- **Sisyphus**: ZhiPuAI GLM 4.7 (70% 请求)
+- **Oracle**: Claude Sonnet 4.5 (antigravity) - 仅关键决策
+- **Prometheus**: ZhiPuAI GLM 4.7
+- **Librarian**: Gemini 2.0 Flash Thinking Experimental
+- **Explore**: Github Copilot Free (GPT-4o)
+
+**资源分配比例**:
+- ZhiPuAI: 70% (主力)
+- Gemini: 15% (思考任务)
+- Github Copilot Free: 10% (高频轻量任务)
+- Claude: 3% (仅 oracle 关键决策)
+- ChatGPT: 2% (备选)
+
+**并发限制**:
+- ZhiPuAI: 15 并发
+- Gemini: 8 并发
+- Claude: 3 并发（节制使用）
+- 总计: 30 并发
+
+**适用场景**:
+- 日常开发（80%+ 场景）
+- 中等复杂度项目
+- 持续迭代开发
+- 学习和探索
+
+**预估成本**: ¥100-200/天
+
+---
+
+### Strategy 3: Economical (经济节约)
+
+**核心理念**: 最大化利用免费资源
+
+**模型分配**:
+- **Sisyphus**: Github Copilot Free (GPT-4o) - 80% 请求
+- **Oracle**: ZhiPuAI GLM 4.7
+- **Prometheus**: Github Copilot Free (GPT-5-mini)
+- **Librarian**: Github Copilot Free (GPT-4o)
+- **Explore**: Github Copilot Free (GPT-4o)
+
+**资源分配比例**:
+- Github Copilot Free: 80% (主力)
+- ZhiPuAI: 15%
+- 顶级模型: <5% (仅极端情况)
+
+**并发限制**:
+- Github Copilot: 20 并发（免费无限）
+- 其他: 严格限制
+- 总计: 25 并发
+
+**适用场景**:
+- 个人学习项目
+- 实验性开发
+- 月底配额紧张
+- 非关键任务
+
+**预估成本**: ¥20-50/天
+
+**限制**:
+- Premium 模型调用 <50/月
+- Claude Pro <20/月
+- ChatGPT Plus <10/月
+
+## 最佳实践
+
+### 1. 智能策略切换
+
+**推荐工作流**:
+
+```bash
+# 月初: 使用均衡策略
+omo-quota switch balanced
+
+# 关键项目冲刺: 切换性能模式
+omo-quota switch performance
+
+# 月底配额紧张: 切换经济模式
+omo-quota switch economical
+
+# 完成关键任务后: 恢复均衡策略
+omo-quota switch balanced
+```
+
+### 2. 定期检查配额
+
+**建议频率**:
+
+```bash
+# 每天开始工作前
+omo-quota status
+
+# 发现某资源即将耗尽时
+omo-quota switch economical  # 临时降级
+
+# 配额重置后
+omo-quota reset claude-pro
+omo-quota reset zhipuai-max
+```
+
+### 3. 手动更新使用量
+
+虽然 oh-my-opencode 会自动追踪,但关键资源建议手动确认:
+
+```bash
+# 检查 Claude Pro 实际使用量（通过官网）
+# 如发现差异,手动同步
+omo-quota update claude-pro 85
+```
+
+### 4. 项目级配置覆盖
+
+对于特定项目,可以使用项目级配置:
+
+```bash
+# 在项目根目录
+mkdir -p .opencode
+cp ~/.config/opencode/strategies/strategy-1-performance.jsonc .opencode/oh-my-opencode.jsonc
+
+# 该项目将始终使用性能模式,不受全局策略影响
+```
+
+### 5. 健康检查常态化
+
+```bash
+# 每周一次
+omo-quota doctor
+
+# 切换策略后
+omo-quota switch balanced && omo-quota doctor
+
+# 发现异常行为时
+omo-quota doctor
+```
+
+## 配置文件路径
+
+| 文件 | 路径 | 说明 |
+|------|------|------|
+| 当前活动配置 | `~/.config/opencode/oh-my-opencode.jsonc` | 当前生效的配置 |
+| 性能策略 | `~/.config/opencode/strategies/strategy-1-performance.jsonc` | 极致性能配置 |
+| 均衡策略 | `~/.config/opencode/strategies/strategy-2-balanced.jsonc` | 均衡实用配置 |
+| 经济策略 | `~/.config/opencode/strategies/strategy-3-economical.jsonc` | 经济节约配置 |
+| 配额追踪 | `~/.omo-quota-tracker.json` | 使用量追踪数据 |
+| 配置备份 | `~/.config/opencode/oh-my-opencode.backup.jsonc` | 切换前的备份 |
+
+## 故障排查
+
+### 问题: `omo-quota: command not found`
+
+**解决方案**:
+
+```bash
+cd ~/omo-quota
+bun link
+
+# 或使用完整路径
+cd ~/omo-quota && bun run src/index.ts status
+```
+
+### 问题: 策略切换后配置未生效
+
+**解决方案**:
+
+```bash
+# 1. 确认切换成功
+omo-quota doctor
+
+# 2. 检查当前配置
+cat ~/.config/opencode/oh-my-opencode.jsonc | head -20
+
+# 3. 重启 OpenCode 或重新加载终端
+# VSCode: 重新加载窗口
+# 终端: 重新打开或 source ~/.bashrc
+```
+
+### 问题: 配额追踪文件损坏
+
+**解决方案**:
+
+```bash
+# 删除并重新初始化
+rm ~/.omo-quota-tracker.json
+omo-quota init
+```
+
+### 问题: Doctor 报告配置无效
+
+**解决方案**:
+
+```bash
+# 强制重新应用策略
+omo-quota switch balanced
+
+# 检查 JSON 语法
+cd ~/.config/opencode/strategies
+cat strategy-2-balanced.jsonc | bunx jsonc-parser
+```
+
+## 技术细节
+
+### oh-my-opencode 配置优先级
+
+1. **项目级配置** (`.opencode/oh-my-opencode.jsonc`) - 最高优先级
+2. **用户级配置** (`~/.config/opencode/oh-my-opencode.jsonc`) - 默认配置
+3. **Provider 链回退** - 配置中指定的 fallback 链
+4. **系统默认** - oh-my-opencode 内置默认值
+
+### 模型分辨率机制
+
+```
+用户请求 → 检查 agents.<agent>.model
+         → 未定义? 检查 categories.<category>.model
+         → 未定义? 使用 provider 链第一个可用模型
+         → 失败? 回退到下一个 provider
+         → 全部失败? 报错
+```
+
+### 并发控制逻辑
+
+```
+总请求 → 检查 concurrency.global (总并发限制)
+       → 检查 concurrency.perProvider.<provider> (平台限制)
+       → 检查 concurrency.perModel.<model> (模型限制)
+       → 满足所有条件 → 执行
+       → 任一超限 → 排队等待
+```
+
+## 支持的资源提供者
+
+### 5 小时重置资源
+- `anthropic` - Claude Pro
+- `google-1` - Gemini Pro #1
+- `google-2` - Gemini Pro #2
+- `zhipuai` - ZhiPuAI Max
+- `ark` - 方舟 Pro
+
+### 月度资源
+- `github-copilot-premium` - Github Copilot Premium (300次/月)
+
+### 余额资源
+- `deepseek` - DeepSeek
+- `siliconflow` - 硅基流动
+- `openrouter` - Openrouter
+
+## 文件结构
+
+```
+~/omo-quota/
+├── src/
+│   ├── index.ts              # CLI 入口
+│   ├── types.ts              # 类型定义
+│   ├── utils/
+│   │   └── tracker.ts        # 追踪文件操作
+│   └── commands/             # 命令实现
+│       ├── status.ts
+│       ├── switch.ts
+│       ├── reset.ts
+│       ├── update.ts
+│       ├── init.ts
+│       └── doctor.ts
+├── package.json
+├── tsconfig.json
+└── README.md
+
+~/.omo-quota-tracker.json                          # 追踪文件
+~/.config/opencode/oh-my-opencode.jsonc            # 当前配置
+~/.config/opencode/oh-my-opencode.backup.jsonc     # 备份配置
+~/.config/opencode/strategies/                     # 策略文件
+├── strategy-1-performance.jsonc
+├── strategy-2-balanced.jsonc
+└── strategy-3-economical.jsonc
+```
+
+## 追踪文件格式
+
+`~/.omo-quota-tracker.json` 示例:
+
+```json
+{
+  "providers": {
+    "anthropic": {
+      "lastReset": "2026-01-30T10:00:00Z",
+      "nextReset": "2026-01-30T15:00:00Z",
+      "resetInterval": "5h",
+      "usage": 45
+    },
+    "google-1": {
+      "lastReset": "2026-01-30T09:00:00Z",
+      "nextReset": "2026-01-30T14:00:00Z",
+      "resetInterval": "5h"
+    },
+    "github-copilot-premium": {
+      "month": "2026-01",
+      "used": 150,
+      "limit": 300
+    },
+    "deepseek": {
+      "balance": "¥300",
+      "currency": "CNY"
+    }
+  },
+  "currentStrategy": "balanced"
+}
+```
+
+## 开发
+
+```bash
+# 安装依赖
+bun install
+
+# 开发模式运行
+bun run src/index.ts status
+
+# 编译（如需）
+bun build src/index.ts --outdir dist --target bun
+```
+
+## 技术栈
+
+- **运行时**: Bun
+- **语言**: TypeScript
+- **CLI 框架**: Commander.js
+- **UI 库**: chalk, boxen
+- **JSON 解析**: jsonc-parser
+
+## 许可证
+
+MIT License - 自由使用和修改
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request!
+
+---
+
+**快速上手**:
+
+```bash
+# 1. 初始化
+omo-quota init
+
+# 2. 切换到推荐策略
+omo-quota switch balanced
+
+# 3. 查看状态
+omo-quota status
+
+# 4. 开始使用 OpenCode!
+```
+
+**问题反馈**: 如遇到问题,请运行 `omo-quota doctor` 并附上输出结果。
