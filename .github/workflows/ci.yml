@@ -1,0 +1,143 @@
+name: CI/CD
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Type check (TypeScript)
+        run: bunx tsc --noEmit
+        continue-on-error: true
+
+      - name: Build project
+        run: bun build src/index.ts --outdir dist --target bun
+
+      - name: Test build output
+        run: |
+          if [ ! -f dist/index.js ]; then
+            echo "❌ Build failed: dist/index.js not found"
+            exit 1
+          fi
+          echo "✅ Build successful: dist/index.js exists"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+          retention-days: 7
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: dist/
+
+      - name: Package release files
+        run: |
+          mkdir -p release
+          cp -r src release/
+          cp -r dist release/
+          cp -r dashboard release/
+          cp package.json release/
+          cp README.md release/
+          cp -r docs release/ || true
+          cd release
+          tar -czf ../omo-quota-${{ github.ref_name }}.tar.gz .
+          cd ..
+          zip -r omo-quota-${{ github.ref_name }}.zip release/
+
+      - name: Extract release notes
+        id: extract_notes
+        run: |
+          TAG_NAME=${{ github.ref_name }}
+          echo "TAG_NAME=${TAG_NAME}" >> $GITHUB_OUTPUT
+          
+          # 从 git log 提取自上次 tag 以来的 commit 信息
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${TAG_NAME}^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREVIOUS_TAG" ]; then
+            # 首次发布,获取所有 commits
+            COMMITS=$(git log --pretty=format:"- %s (%h)" --reverse)
+          else
+            # 获取两个 tag 之间的 commits
+            COMMITS=$(git log ${PREVIOUS_TAG}..${TAG_NAME} --pretty=format:"- %s (%h)" --reverse)
+          fi
+          
+          # 写入 release notes
+          cat > release_notes.md << EOF
+          ## 🚀 Release ${TAG_NAME}
+          
+          ### 📦 Installation
+          
+          \`\`\`bash
+          # Download and extract
+          wget https://github.com/\${{ github.repository }}/releases/download/${TAG_NAME}/omo-quota-${TAG_NAME}.tar.gz
+          tar -xzf omo-quota-${TAG_NAME}.tar.gz
+          cd release
+          
+          # Install dependencies
+          bun install
+          
+          # Link globally (optional)
+          bun link
+          \`\`\`
+          
+          ### 📝 Changes
+          
+          ${COMMITS}
+          
+          ### 📚 Documentation
+          
+          See [README.md](https://github.com/\${{ github.repository }}/blob/${TAG_NAME}/README.md) for full documentation.
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ steps.extract_notes.outputs.TAG_NAME }}
+          body_path: release_notes.md
+          files: |
+            omo-quota-${{ github.ref_name }}.tar.gz
+            omo-quota-${{ github.ref_name }}.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Release summary
+        run: |
+          echo "✅ Release ${{ github.ref_name }} created successfully!"
+          echo "📦 Artifacts:"
+          echo "  - omo-quota-${{ github.ref_name }}.tar.gz"
+          echo "  - omo-quota-${{ github.ref_name }}.zip"
