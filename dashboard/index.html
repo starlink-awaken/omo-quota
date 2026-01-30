@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>omo-quota Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card h2 {
+      margin-top: 0;
+      color: #555;
+      font-size: 18px;
+    }
+    .provider-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 15px;
+    }
+    .provider-item {
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border-left: 4px solid #4CAF50;
+    }
+    .provider-name {
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .provider-stats {
+      font-size: 14px;
+      color: #666;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 20px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4CAF50, #8BC34A);
+      transition: width 0.3s ease;
+    }
+    .strategy-badge {
+      display: inline-block;
+      padding: 5px 15px;
+      background: #2196F3;
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    .refresh-indicator {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border-radius: 20px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .refresh-indicator.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="refresh-indicator" id="refreshIndicator">🔄 更新中...</div>
+  
+  <div class="container">
+    <h1>📊 omo-quota Dashboard</h1>
+    
+    <div class="card">
+      <h2>当前策略</h2>
+      <div id="currentStrategy">Loading...</div>
+    </div>
+    
+    <div class="card">
+      <h2>Provider 配额状态</h2>
+      <div class="provider-grid" id="providerGrid">
+        Loading...
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let updateCount = 0;
+    
+    async function fetchData() {
+      const indicator = document.getElementById('refreshIndicator');
+      indicator.classList.add('active');
+      
+      try {
+        const response = await fetch('/api/tracker');
+        const data = await response.json();
+        renderData(data);
+        updateCount++;
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setTimeout(() => {
+          indicator.classList.remove('active');
+        }, 500);
+      }
+    }
+    
+    function renderData(data) {
+      document.getElementById('currentStrategy').innerHTML = 
+        `<span class="strategy-badge">${data.currentStrategy || 'unknown'}</span>`;
+      
+      const providers = data.providers || {};
+      const providerGrid = document.getElementById('providerGrid');
+      
+      if (Object.keys(providers).length === 0) {
+        providerGrid.innerHTML = '<p>暂无数据，请运行 <code>omo-quota sync</code> 同步数据</p>';
+        return;
+      }
+      
+      providerGrid.innerHTML = Object.entries(providers)
+        .map(([name, info]) => {
+          const usage = info.usage || 0;
+          const limit = info.limit || 0;
+          const percentage = limit > 0 ? (usage / limit * 100).toFixed(1) : 0;
+          
+          let statsHTML = '';
+          if (info.lastReset) {
+            const nextReset = new Date(info.nextReset);
+            const now = new Date();
+            const hoursLeft = Math.max(0, (nextReset - now) / 3600000).toFixed(1);
+            statsHTML = `
+              <div class="provider-stats">
+                使用量: ${usage.toLocaleString()} tokens<br>
+                重置: ${hoursLeft}小时后
+              </div>
+            `;
+          } else if (limit > 0) {
+            statsHTML = `
+              <div class="provider-stats">
+                使用: ${usage} / ${limit}<br>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${percentage}%"></div>
+                </div>
+                ${percentage}%
+              </div>
+            `;
+          } else {
+            statsHTML = `
+              <div class="provider-stats">
+                总使用量: ${usage.toLocaleString()} tokens
+              </div>
+            `;
+          }
+          
+          return `
+            <div class="provider-item">
+              <div class="provider-name">${name}</div>
+              ${statsHTML}
+            </div>
+          `;
+        })
+        .join('');
+    }
+    
+    fetchData();
+    setInterval(fetchData, 5000);
+    
+    console.log('✅ Dashboard initialized. Auto-refresh every 5 seconds.');
+  </script>
+</body>
+</html>
