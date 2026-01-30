@@ -31,22 +31,23 @@ function getCurrentStrategy(): string {
   }
 }
 
-function validateModels(strategy: string): void {
-  const targetStrategy = strategy || getCurrentStrategy();
+export function validateModels(options: { strategy?: string; all?: boolean } = {}): void {
+  const targetStrategy = options.strategy || getCurrentStrategy();
   const strategyFile = STRATEGIES[targetStrategy as keyof typeof STRATEGIES];
   const strategyPath = `${STRATEGIES_DIR}/${strategyFile}`;
-  
+
   if (!existsSync(strategyPath)) {
     console.error(chalk.red(`✗ 策略文件不存在: ${strategyPath}`));
     process.exit(1);
   }
-  
+
   console.log(chalk.bold(`验证策略: ${targetStrategy}\n`));
-  
+
   try {
     const strategy = parseJSONC(readFileSync(strategyPath, 'utf-8')) as any;
     let hasModelConfig = false;
     let modelErrors: string[] = [];
+    let allOk = true; // 修复：定义 allOk 变量
     
     // 检查是否有 providers 配置
     if (strategy.providers) {
@@ -59,22 +60,23 @@ function validateModels(strategy: string): void {
     // 验证每个 agent 的模型配置
     console.log(chalk.yellow('\n模型层级结构:\n'));
     for (const [agentName, agentConfig] of Object.entries(strategy.agents || {})) {
-      const model = agentConfig.model;
+      const config = agentConfig as any;
+      const model = config.model;
       console.log(chalk.cyan(`  ${agentName}:`));
       console.log(chalk.gray(`    主模型: ${model}`));
-      
+
       // 如果有 providers 配置，验证模型是否在提供商列表中
-      if (strategy.providers && agentConfig.fallback_providers) {
+      if (strategy.providers && config.fallback_providers) {
         const provider = model.split('/')[0];
         const providerModels = strategy.providers[provider];
-        
-        console.log(chalk.gray(`    回退链: ${(agentConfig.fallback_providers as string[]).join(' → ')}`));
-        
+
+        console.log(chalk.gray(`    回退链: ${(config.fallback_providers as string[]).join(' → ')}`));
+
         if (providerModels && providerModels.includes(model.split('/')[1])) {
           console.log(chalk.green(`      ✓ 主模型可用`));
         } else {
-          const fallbackModels = (agentConfig.fallback_providers as string[]).filter(fp => providerModels?.includes(fp.split('/')[1]));
-          
+          const fallbackModels = (config.fallback_providers as string[]).filter(fp => providerModels?.includes(fp.split('/')[1]));
+
           if (fallbackModels.length > 0) {
             console.log(chalk.yellow(`      ⚠️  主模型不可用，可通过 ${fallbackModels.join(' → ')} 获取`));
           } else {
@@ -83,12 +85,12 @@ function validateModels(strategy: string): void {
           }
         }
       }
-      
+
       // 显示 primary_provider
-      if (agentConfig.primary_provider) {
-        console.log(chalk.gray(`    primary_provider: ${agentConfig.primary_provider}`));
+      if (config.primary_provider) {
+        console.log(chalk.gray(`    primary_provider: ${config.primary_provider}`));
       }
-      
+
       console.log();
     }
     
@@ -120,10 +122,11 @@ function validateModels(strategy: string): void {
       
       // 显示每个 agent 的 fallback 路径
       for (const [agentName, agentConfig] of Object.entries(strategy.agents || {})) {
-        if (agentConfig.fallback_providers) {
-          const fallbackChain = (agentConfig.fallback_providers as string[]).join(' → ');
+        const config = agentConfig as any;
+        if (config.fallback_providers) {
+          const fallbackChain = (config.fallback_providers as string[]).join(' → ');
           console.log(chalk.cyan(`  ${agentName}:`));
-          console.log(chalk.gray(`    ${agentConfig.model}`));
+          console.log(chalk.gray(`    ${config.model}`));
           console.log(chalk.gray(`    → ${fallbackChain}`));
         }
       }
@@ -136,11 +139,4 @@ function validateModels(strategy: string): void {
   }
 }
 
-const program = new Command();
 
-program
-  .command('validate-models [command]', '验证模型配置', (cmd, strategy) => validateModels(cmd, strategy))
-  .option('-s, --strategy <name>', '指定要验证的策略名称', 'balanced')
-  .parse();
-
-export default program;

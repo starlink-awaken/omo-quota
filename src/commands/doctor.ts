@@ -20,7 +20,7 @@ export function doctor() {
         const content = readFileSync(strategyPath, 'utf-8');
         parseJSONC(content);
         console.log(`  ✓ ${name}: ${strategyPath}`);
-      } catch {
+      } catch (error) {
         console.log(`  ✗ 语法错误: ${error instanceof Error ? error.message : String(error)}`);
         allOk = false;
       }
@@ -33,8 +33,8 @@ export function doctor() {
     try {
       const content = readFileSync(CONFIG_PATH, 'utf-8');
       parseJSONC(content);
-      console.log('  ✓ 配置文件存在: ${CONFIG_PATH}`);
-    } catch {
+      console.log(`  ✓ 配置文件存在: ${CONFIG_PATH}`);
+    } catch (error) {
       console.log(`  ✗ 配置文件语法错误: ${error instanceof Error ? error.message : String(error)}`);
       allOk = false;
     }

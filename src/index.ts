@@ -11,6 +11,8 @@ import { syncQuota } from './commands/sync';
 import { reportDaily, reportMonthly } from './commands/report';
 import { startDashboard } from './commands/dashboard';
 import { watch } from './commands/watch';
+import { validateModels } from './commands/validate-models';
+import packageJson from '../package.json';
 
 const program = new Command();
 
@@ -122,11 +124,15 @@ program
   });
 
 program
-import { validateModels } from './commands/validate-models';
+  .command('watch')
+  .description('监控配额状态并自动预警')
+  .action(watch);
 
 program
-  .command('validate-models [command]', '验证模型配置')
+  .command('validate-models')
+  .description('验证模型配置和回退链')
   .option('-s, --strategy <name>', '指定要验证的策略名称', 'balanced')
-  .parse();
+  .option('--all', '验证所有策略')
+  .action(validateModels);
 
 program.parse();

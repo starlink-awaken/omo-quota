@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import asciichart from 'asciichart';
+import * as asciichart from 'asciichart';
 import Chartscii from 'chartscii';
 import { scanAllSessions, DEFAULT_STORAGE_PATH } from '../utils/message-parser';
 import { calculateCost, aggregateCosts } from '../utils/cost-calculator';

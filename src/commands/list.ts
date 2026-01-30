@@ -71,13 +71,44 @@ function getCurrentStrategy(): string {
 
 export function list() {
   console.log(chalk.bold.cyan('可用的配置策略:\n'));
-  
+
   const currentStrategy = getCurrentStrategy();
-  
+
+  // 检查是否所有策略文件都不存在
+  let missingCount = 0;
+  const missingStrategies: string[] = [];
+
+  for (const [key, file] of Object.entries(STRATEGIES)) {
+    const filePath = `${STRATEGIES_DIR}/${file}`;
+    if (!existsSync(filePath)) {
+      missingCount++;
+      missingStrategies.push(key);
+    }
+  }
+
+  // 如果所有策略文件都不存在，显示友好的初始化引导
+  if (missingCount === Object.keys(STRATEGIES).length) {
+    console.log(chalk.yellow.bold('⚠️  策略文件尚未初始化\n'));
+    console.log(chalk.cyan('🚀 快速开始：\n'));
+    console.log(chalk.gray('  运行以下命令生成策略模板：\n'));
+    console.log(chalk.bold.white('  omo-quota init\n'));
+    console.log(chalk.gray('  验证策略文件状态：'));
+    console.log(chalk.bold.white('  omo-quota doctor\n'));
+    console.log(chalk.gray('\n📚 详细文档: https://github.com/xiamingxing/omo-quota#快速开始\n'));
+    console.log(chalk.gray('💡 提示: 策略文件应位于 ~/.config/opencode/strategies/ 目录'));
+    return;
+  }
+
+  // 如果部分策略文件缺失，在开始时显示警告
+  if (missingCount > 0 && missingCount < Object.keys(STRATEGIES).length) {
+    console.log(chalk.yellow(`⚠️  ${missingCount} 个策略文件缺失: ${missingStrategies.join(', ')}\n`));
+    console.log(chalk.gray('运行 "omo-quota doctor" 检查配置状态\n'));
+  }
+
   for (const [key, file] of Object.entries(STRATEGIES)) {
     const filePath = `${STRATEGIES_DIR}/${file}`;
     const isCurrent = key === currentStrategy;
-    
+
     if (!existsSync(filePath)) {
       console.log(chalk.red(`✗ ${key}: 文件不存在\n`));
       continue;
@@ -116,7 +147,8 @@ export function list() {
       contentLines.push(chalk.yellow('📋 Providers 回退链:'));
       
       for (const [provider, providerModels] of Object.entries(config.providers || {})) {
-        contentLines.push(`  ${chalk.cyan(provider)}: ${chalk.gray(providerModels.join(', '))}`);
+        const models = providerModels as string[];
+        contentLines.push(`  ${chalk.cyan(provider)}: ${chalk.gray(models.join(', '))}`);
       }
       
       contentLines.push('');

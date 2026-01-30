@@ -3,14 +3,47 @@ export interface ProviderStatus {
   nextReset?: string;
   resetInterval?: string;
   usage?: number;
+  used?: number;
   limit?: number;
   month?: string;
+  balance?: string;
+  currency?: string;
 }
 
 export interface TrackerData {
   providers: Record<string, ProviderStatus>;
   currentStrategy: string;
 }
+
+// QuotaTracker 类型 - 用于 tracker.ts
+export interface QuotaTracker {
+  providers: Record<string, HourlyResetProvider | MonthlyResetProvider | BalanceProvider>;
+  currentStrategy: StrategyType;
+}
+
+// 按小时重置的提供商
+export interface HourlyResetProvider {
+  lastReset: string;
+  nextReset: string;
+  resetInterval: string;
+  usage?: number;
+}
+
+// 按月重置的提供商
+export interface MonthlyResetProvider {
+  month: string;
+  used: number;
+  limit: number;
+}
+
+// 余额类型的提供商
+export interface BalanceProvider {
+  balance: string;
+  currency: string;
+}
+
+// 策略类型
+export type StrategyType = 'performance' | 'balanced' | 'economical';
 
 const getBasePath = () => {
   return process.env.OMO_QUOTA_HOME || `${process.env.HOME}/omo-quota`;
@@ -48,3 +81,6 @@ export const STRATEGIES = {
 } as const;
 
 export type StrategyName = keyof typeof STRATEGIES;
+
+// 导出策略相关类型
+export * from './types/strategy.js';
