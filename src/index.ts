@@ -7,6 +7,9 @@ import { update } from './commands/update';
 import { init } from './commands/init';
 import { doctor } from './commands/doctor';
 import { list } from './commands/list';
+import { syncQuota } from './commands/sync';
+import { reportDaily, reportMonthly } from './commands/report';
+import { startDashboard } from './commands/dashboard';
 
 const program = new Command();
 
@@ -49,5 +52,34 @@ program
   .command('doctor')
   .description('验证配置文件和策略')
   .action(doctor);
+
+program
+  .command('sync')
+  .description('同步 oh-my-opencode 使用记录到配额追踪器')
+  .action(syncQuota);
+
+program
+  .command('report <period>')
+  .description('生成成本分析报告 (daily|monthly)')
+  .option('--export', '导出为Markdown文件')
+  .action((period: string, options: any) => {
+    if (period === 'daily') {
+      reportDaily(options);
+    } else if (period === 'monthly') {
+      reportMonthly();
+    } else {
+      console.error('Invalid period. Use: daily or monthly');
+      process.exit(1);
+    }
+  });
+
+program
+  .command('dashboard')
+  .description('启动 Web 仪表盘')
+  .option('-p, --port <port>', '端口号', '3737')
+  .action((options: any) => {
+    const port = parseInt(options.port);
+    startDashboard(port);
+  });
 
 program.parse();
