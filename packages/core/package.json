@@ -1,0 +1,56 @@
+{
+  "name": "@omo-quota/core",
+  "version": "1.0.0",
+  "description": "Oh-My-OpenCode 配额管理核心库",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    },
+    "./tracker": {
+      "types": "./dist/tracker/index.d.ts",
+      "default": "./dist/tracker/index.js"
+    },
+    "./config": {
+      "types": "./dist/config/index.d.ts",
+      "default": "./dist/config/index.js"
+    },
+    "./pricing": {
+      "types": "./dist/pricing/index.d.ts",
+      "default": "./dist/pricing/index.js"
+    },
+    "./strategy": {
+      "types": "./dist/strategy/index.d.ts",
+      "default": "./dist/strategy/index.js"
+    },
+    "./errors": {
+      "types": "./dist/errors/index.d.ts",
+      "default": "./dist/errors/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "dev": "bun --watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.8",
+    "@types/node": "^25.1.0",
+    "typescript": "^5.0.0"
+  }
+}

@@ -199,6 +199,80 @@ cp ~/.config/opencode/strategies/strategy-1-performance.jsonc .opencode/oh-my-op
 
 ## 故障排查
 
+### 问题: 策略文件不存在
+
+**错误提示**:
+```
+✗ 策略文件不存在: /Users/xxx/.config/opencode/strategies/strategy-2-balanced.jsonc
+
+💡 可能的解决方案：
+
+  1. 运行初始化生成策略模板：
+     omo-quota init
+
+  2. 验证策略文件状态：
+     omo-quota doctor
+
+  3. 查看所有可用策略：
+     omo-quota list
+
+📚 详细文档: https://github.com/xiamingxing/omo-quota#策略说明
+
+💡 提示: 策略文件应位于 ~/.config/opencode/strategies/ 目录
+```
+
+**解决方案**:
+- 策略文件应位于 `~/.config/opencode/strategies/` 目录
+- 运行 `omo-quota init` 初始化配额追踪文件
+- 使用 `omo-quota doctor` 验证配置完整性
+- 参考 README 的策略说明部分手动创建策略文件
+
+### 问题: 无效的策略名称
+
+**错误提示**:
+```
+✗ 无效的策略名称: xxx
+
+💡 可用策略：
+
+  • performance - 极致性能型 (关键任务、紧急项目)
+  • balanced - 均衡实用型 (日常开发、推荐) ⭐
+  • economical - 极致省钱型 (实验项目、预算受限)
+
+使用 "omo-quota list" 查看所有策略详情
+切换命令: omo-quota switch <策略名称>
+```
+
+**解决方案**:
+- 使用正确的策略名称: `performance`, `balanced`, 或 `economical`
+- 运行 `omo-quota list` 查看所有策略的详细信息
+- 推荐使用 `balanced` 策略作为日常开发
+
+### 问题: 策略文件尚未初始化
+
+**错误提示**:
+```
+⚠️  策略文件尚未初始化
+
+🚀 快速开始：
+
+  运行以下命令生成策略模板：
+
+  omo-quota init
+
+  验证策略文件状态：
+  omo-quota doctor
+
+📚 详细文档: https://github.com/xiamingxing/omo-quota#快速开始
+
+💡 提示: 策略文件应位于 ~/.config/opencode/strategies/ 目录
+```
+
+**解决方案**:
+- 首次使用需要运行 `omo-quota init` 初始化
+- 策略文件需要手动创建或从 oh-my-opencode 模板复制
+- 参考文档了解完整的初始化流程
+
 ### 问题: 切换后模型仍然使用旧配置
 
 **解决方案**:

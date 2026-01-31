@@ -1,9 +1,15 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 import type { TrackerData } from '../types';
 import { TRACKER_PATH } from '../types';
 
+// 获取 tracker 文件路径（支持测试时的动态路径）
+const getTrackerPath = () => process.env.OMO_QUOTA_TRACKER_PATH || TRACKER_PATH;
+
 export function loadTracker(): TrackerData {
-  if (!existsSync(TRACKER_PATH)) {
+  const trackerPath = getTrackerPath();
+
+  if (!existsSync(trackerPath)) {
     return {
       providers: {},
       currentStrategy: 'balanced',
@@ -11,7 +17,7 @@ export function loadTracker(): TrackerData {
   }
 
   try {
-    const data = readFileSync(TRACKER_PATH, 'utf-8');
+    const data = readFileSync(trackerPath, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
     console.error('读取追踪文件失败，使用默认值');
@@ -23,8 +29,15 @@ export function loadTracker(): TrackerData {
 }
 
 export function saveTracker(data: TrackerData): void {
+  const trackerPath = getTrackerPath();
+
   try {
-    writeFileSync(TRACKER_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    // 确保目录存在
+    const dir = trackerPath.split('/').slice(0, -1).join('/');
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+    writeFileSync(trackerPath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
     console.error('保存追踪文件失败:', error);
     process.exit(1);

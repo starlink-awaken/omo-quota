@@ -1,0 +1,10 @@
+{
+  "taskId": "002_read-task-output",
+  "status": "PENDING",
+  "effortLevel": "QUICK",
+  "criteria": [],
+  "antiCriteria": [],
+  "satisfaction": null,
+  "createdAt": "2026-01-31T21:47:24+08:00",
+  "updatedAt": "2026-01-31T21:47:24+08:00"
+}

@@ -1,0 +1,9 @@
+skills_count=0
+workflows_count=0
+0
+hooks_count=0
+learnings_count=1
+work_count=1
+sessions_count=1
+research_count=0
+ratings_count=1

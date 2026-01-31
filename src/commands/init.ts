@@ -3,8 +3,23 @@ import { existsSync } from 'fs';
 import { saveTracker, calculateNextReset } from '../utils/tracker';
 import { TRACKER_PATH } from '../types';
 import { generateStrategies } from '../utils/strategy-generator';
+import { runWizard } from './wizard';
 
-export function init() {
+export interface InitOptions {
+  /** 交互式向导模式 */
+  wizard?: boolean;
+  /** 跳过确认 */
+  yes?: boolean;
+}
+
+export async function init(options: InitOptions = {}): Promise<void> {
+  // 如果启用向导模式，运行向导
+  if (options.wizard) {
+    await runWizard();
+    return;
+  }
+
+  // 普通初始化模式
   console.log(chalk.cyan.bold('\n🚀 初始化 omo-quota 配额管理系统\n'));
 
   // 1. 初始化追踪器

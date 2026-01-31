@@ -202,32 +202,37 @@ DeepSeek:
    - GitHub Copilot Free: 完全免费，用于轻量任务
    - Claude Pro: 仅用于关键决策
 
----
+## 实际命令示例
 
-**注意**: 本技能文件可以复制到 `~/.config/opencode/skills/` 目录，oh-my-opencode 会自动加载。
-
-**文件名建议**: `omo-quota-quota-manager.md`
+### 读取配额数据
+```bash
+cat ~/.omo-quota-tracker.json | head -30
 ```
 
+### 读取当前配置
+```bash
+cat ~/.config/opencode/oh-my-opencode.json | grep -A5 '"agents"'
+```
+
+### 执行 omo-quota 命令
+```bash
+cd /Volumes/Model/Workspace/Skills/omo-quota
+bun run src/index.ts status
+bun run src/index.ts list
+bun run src/index.ts sync
+```
+
+## 与 Documentation Skill 的协同
+
+当用户询问具体命令用法时，建议引导用户使用：
+```
+"详细的命令说明请查看 @omo-quota skill 文档"
+```
+
+这样可以结合两种 skill 的优势：
+- 本 skill（quota-manager.md）：负责数据分析和智能建议
+- @omo-quota skill：负责命令参考和技术细节
+
 ---
 
-**文件已创建！**
-
-文件路径：`/Users/xiamingxing/omo-quota/quota-manager.md`
-
-**下一步操作**：
-
-1. **复制到 oh-my-opencode**:
-   ```bash
-   mkdir -p ~/.config/opencode/skills/
-   cp /Users/xiamingxing/omo-quota/quota-manager.md ~/.config/opencode/skills/
-   ```
-
-2. **测试使用**：
-   - 在 oh-my-opencode 中重新加载配置
-   - 尝试询问："我的配额状态怎么样？"
-   - 验证 AI 代理是否能读取并分析您的配额数据
-
-3. **如果工作正常**：
-   - 可以创建更多专用技能文件
-   - 例如：成本分析专家、策略推荐助手、使用模式分析器
+**安装状态**: ✅ 已安装到 `~/.config/opencode/skills/quota-manager.md`

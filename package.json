@@ -1,27 +1,38 @@
 {
-  "name": "omo-quota",
+  "name": "omo-quota-monorepo",
   "version": "1.0.0",
-  "description": "Oh-My-OpenCode 配额管理和策略切换工具",
+  "description": "Oh-My-OpenCode 配额管理和策略切换工具 - Monorepo",
+  "private": true,
   "type": "module",
-  "bin": {
-    "omo-quota": "./src/index.ts"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
-    "install-global": "bun link"
-  },
-  "dependencies": {
-    "asciichart": "^1.5.25",
-    "boxen": "^8.0.1",
-    "chalk": "^5.6.2",
-    "chartscii": "^3.2.0",
-    "commander": "^14.0.2",
-    "jsonc-parser": "^3.3.1"
+    "build": "bun run build:core && bun run build:cli && bun run build:plugin",
+    "build:core": "cd packages/core && bun run build",
+    "build:cli": "cd packages/cli && bun run build",
+    "build:plugin": "cd packages/plugin && bun run build",
+    "dev": "bun run dev:cli",
+    "dev:cli": "cd packages/cli && bun run dev",
+    "dev:plugin": "cd packages/plugin && bun run dev",
+    "test": "bun run test:cli && bun run test:plugin",
+    "test:cli": "cd packages/cli && bun test",
+    "test:plugin": "cd packages/plugin && bun test",
+    "test:watch": "bun run test:cli --watch",
+    "lint": "bun run lint:cli && bun run lint:plugin",
+    "lint:cli": "cd packages/cli && bun run lint",
+    "lint:plugin": "cd packages/plugin && bun run lint",
+    "clean": "rm -rf packages/*/dist packages/*/node_modules",
+    "typecheck": "bun run typecheck:cli && bun run typecheck:plugin",
+    "typecheck:cli": "cd packages/cli && tsc --noEmit",
+    "typecheck:plugin": "cd packages/plugin && bun run typecheck"
   },
   "devDependencies": {
-    "@types/asciichart": "^1.5.8",
     "@types/bun": "^1.3.8",
-    "@types/node": "^25.1.0"
+    "@types/node": "^25.1.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
   }
 }

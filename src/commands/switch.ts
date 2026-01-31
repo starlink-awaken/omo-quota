@@ -1,9 +1,21 @@
 import chalk from 'chalk';
-import { existsSync, copyFileSync } from 'fs';
+import { existsSync, copyFileSync, readFileSync, writeFileSync } from 'fs';
 import { loadTracker, saveTracker } from '../utils/tracker';
-import { STRATEGIES, CONFIG_PATH, STRATEGIES_DIR, BACKUP_PATH, type StrategyName } from '../types';
+import { STRATEGIES, CONFIG_PATH, STRATEGIES_DIR, BACKUP_PATH, TRACKER_PATH, type StrategyName } from '../types';
+import { recordSwitch } from '../utils/undo-stack';
 
-export function switchStrategy(strategy: string) {
+export async function switchStrategy(strategy: string) {
+  // 获取当前策略（用于记录历史）
+  let previousStrategy: string | undefined;
+  try {
+    if (existsSync(TRACKER_PATH)) {
+      const tracker = JSON.parse(readFileSync(TRACKER_PATH, 'utf-8'));
+      previousStrategy = tracker.currentStrategy;
+    }
+  } catch {
+    // 忽略错误
+  }
+
   if (!isValidStrategy(strategy)) {
     console.error(chalk.red.bold(`✗ 无效的策略名称: ${strategy}\n`));
     console.log(chalk.yellow.bold('💡 可用策略：\n'));
@@ -64,6 +76,11 @@ export function switchStrategy(strategy: string) {
   tracker.currentStrategy = strategy;
   saveTracker(tracker);
 
+  // 记录操作历史
+  if (previousStrategy && previousStrategy !== strategy) {
+    recordSwitch(previousStrategy, strategy);
+  }
+
   const strategyNames: Record<string, string> = {
     performance: '极致性能型',
     balanced: '均衡实用型',
@@ -74,6 +91,6 @@ export function switchStrategy(strategy: string) {
   console.log(chalk.gray('请重启 OpenCode 使配置生效。'));
 }
 
-function isValidStrategy(strategy: string): strategy is StrategyName {
+export function isValidStrategy(strategy: string): strategy is StrategyName {
   return strategy in STRATEGIES;
 }

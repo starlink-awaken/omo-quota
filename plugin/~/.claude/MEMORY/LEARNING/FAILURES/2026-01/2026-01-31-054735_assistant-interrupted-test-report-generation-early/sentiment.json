@@ -1,0 +1,8 @@
+{
+  "rating": 2,
+  "summary": "Frustrated with task being killed",
+  "detailed_context": "隔壁老王 was working on a task involving 4 agents that had completed 148 tests successfully, demonstrating a productive workflow. However, the background command 'Remove test files individually' was unexpectedly killed, interrupting what appears to be cleanup work following the successful test execution. This likely caused frustration as the task interruption comes after a successful batch of work, representing a disruption in an otherwise smooth process. The unexpected termination suggests there may have been a system issue or resource constraint that wasn't properly communicated, leaving the workflow incomplete.",
+  "session_id": "22aa6652-1d27-49e7-976e-48ab1867b255",
+  "captured_at": "2026-01-31T13:47:36.008Z",
+  "transcript_source": "22aa6652-1d27-49e7-976e-48ab1867b255.jsonl"
+}

@@ -1,0 +1,41 @@
+{
+  "name": "opencode-omo-quota",
+  "version": "1.0.0",
+  "description": "OpenCode plugin for intelligent AI quota management and strategy switching",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "opencode": {
+    "api": "1",
+    "displayName": "omo-quota",
+    "icon": "📊",
+    "description": "Intelligent AI quota management and strategy switching"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "dev": "bun --watch src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "opencode",
+    "plugin",
+    "quota",
+    "ai",
+    "oh-my-opencode"
+  ],
+  "author": "omo-quota",
+  "license": "MIT",
+  "peerDependencies": {
+    "@opencode-ai/plugin": "^1.1.40"
+  },
+  "dependencies": {
+    "@omo-quota/core": "workspace:*",
+    "jsonc-parser": "^3.3.1"
+  },
+  "devDependencies": {
+    "@opencode-ai/plugin": "1.1.47",
+    "@opencode-ai/sdk": "1.1.47",
+    "@types/bun": "latest",
+    "typescript": "^5.0.0",
+    "zod": "^4.1.8"
+  }
+}

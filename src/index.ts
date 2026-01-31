@@ -5,6 +5,7 @@ import { switchStrategy } from './commands/switch';
 import { reset } from './commands/reset';
 import { update } from './commands/update';
 import { init } from './commands/init';
+import { undo } from './commands/undo';
 import { doctor } from './commands/doctor';
 import { list } from './commands/list';
 import { syncQuota } from './commands/sync';
@@ -13,51 +14,96 @@ import { startDashboard } from './commands/dashboard';
 import { watch } from './commands/watch';
 import { validateModels } from './commands/validate-models';
 import packageJson from '../package.json';
+import { logger, LogLevel } from './utils/logger';
+import { setupGlobalErrorHandlers, setErrorHandlerConfig, wrapCommand } from './utils/error-handler';
+
+// ============================================================================
+// RE-EXPORTS
+// ============================================================================
+
+// Re-export logger for use in other modules
+export { logger, createLogger, LogLevel } from './utils/logger';
+export type { ILogger, LoggerConfig } from './utils/logger';
+
+// Export error handling utilities for use in commands
+export {
+  setupGlobalErrorHandlers,
+  setErrorHandlerConfig,
+  wrapCommand,
+  OmoQuotaError,
+  ErrorCodes,
+  createTrackerNotFoundError,
+  createStrategyNotFoundError,
+  createConfigNotFoundError,
+  createInvalidUsageError,
+  createPathAccessDeniedError,
+} from './utils/error-handler';
+
+// Export error types and factory functions
+export {
+  OmoQuotaError as OmoQuotaErrorType,
+  isOmoQuotaError,
+  wrapError,
+} from './utils/errors';
 
 const program = new Command();
 
-// 全局选项
-let verboseMode = false;
-let logLevel: 'debug' | 'info' | 'warn' | 'error' = 'info';
+// ============================================================================
+// SETUP GLOBAL ERROR HANDLERS
+// ============================================================================
 
-// 日志工具
-export const logger = {
-  debug: (...args: any[]) => {
-    if (logLevel === 'debug' || verboseMode) {
-      console.log('[DEBUG]', ...args);
+// 设置全局错误处理（必须在任何其他代码之前）
+setupGlobalErrorHandlers();
+
+// ============================================================================
+// LOGGING AND ERROR HANDLING CONFIGURATION
+// ============================================================================
+
+/**
+ * Configure logger and error handler based on command-line options
+ * Priority: --silent > --log > --verbose > OMO_QUOTA_LOG_LEVEL env var
+ */
+function configureLoggerAndErrorHandler(options: { verbose?: boolean; log?: string; silent?: boolean }): void {
+  // Configure logger
+  if (options.silent) {
+    logger.setLevel('error');
+  } else if (options.log) {
+    const level = options.log.toLowerCase();
+    if (['debug', 'info', 'warn', 'error', 'silent'].includes(level)) {
+      logger.setLevel(level as any);
+    } else {
+      logger.warn(`Invalid log level: ${options.log}. Using: info`);
     }
-  },
-  info: (...args: any[]) => {
-    if (['debug', 'info'].includes(logLevel) || verboseMode) {
-      console.log('[INFO]', ...args);
-    }
-  },
-  warn: (...args: any[]) => {
-    if (['debug', 'info', 'warn'].includes(logLevel)) {
-      console.warn('[WARN]', ...args);
-    }
-  },
-  error: (...args: any[]) => {
-    console.error('[ERROR]', ...args);
-  },
-};
+  } else if (options.verbose) {
+    logger.setLevel('debug');
+  }
+
+  // Configure error handler
+  setErrorHandlerConfig({
+    verbose: options.verbose || false,
+    silent: options.silent || false,
+  });
+}
+
+// ============================================================================
+// CLI PROGRAM SETUP
+// ============================================================================
 
 program
   .name('omo-quota')
   .description('Oh-My-OpenCode 配额管理和策略切换工具')
   .version(packageJson.version)
-  .option('-v, --verbose', '详细输出模式')
-  .option('--log <level>', '日志级别 (debug|info|warn|error)', 'info')
+  .option('-v, --verbose', '详细输出模式 (等同于 --log debug)')
+  .option('--log <level>', '日志级别 (debug|info|warn|error|silent)', 'info')
   .option('--silent', '静默模式 (仅输出错误)')
   .hook('preAction', (thisCommand) => {
     const opts = thisCommand.opts();
-    verboseMode = opts.verbose;
-    if (opts.silent) {
-      logLevel = 'error';
-    } else if (opts.log) {
-      logLevel = opts.log as any;
-    }
+    configureLoggerAndErrorHandler(opts);
   });
+
+// ============================================================================
+// COMMANDS
+// ============================================================================
 
 program
   .command('list')
@@ -87,7 +133,9 @@ program
 program
   .command('init')
   .description('初始化配额追踪文件')
-  .action(init);
+  .option('-w, --wizard', '启动交互式引导向导')
+  .option('-y, --yes', '跳过确认直接覆盖')
+  .action((options) => init(options));
 
 program
   .command('doctor')
@@ -109,7 +157,7 @@ program
     } else if (period === 'monthly') {
       reportMonthly();
     } else {
-      console.error('Invalid period. Use: daily or monthly');
+      logger.error('Invalid period. Use: daily or monthly');
       process.exit(1);
     }
   });
@@ -134,5 +182,11 @@ program
   .option('-s, --strategy <name>', '指定要验证的策略名称', 'balanced')
   .option('--all', '验证所有策略')
   .action(validateModels);
+
+program
+  .command('undo')
+  .description('撤销上一次策略切换操作')
+  .option('--redo', '重做已撤销的操作')
+  .action(undo);
 
 program.parse();

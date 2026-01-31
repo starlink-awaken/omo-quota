@@ -1,0 +1,12 @@
+[workspace]
+members = ["packages/*"]
+
+[install]
+cache = true
+frozen-lockfile = false
+
+[build]
+watch = false
+
+[test]
+coverage = false
